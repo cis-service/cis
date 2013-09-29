@@ -22,7 +22,6 @@ return array(
         'factories' => array(
             'Ciscore\Model\ImageTable' =>  function($sm) {
                     $tableGateway = $sm->get('ImageTableGateway');
-                    error_log('Called Ciscore\Model\ImageTable' . var_export($tableGateway,true));
                     $table = new ImageTable($tableGateway);
                     return $table;
                 },
