@@ -11,11 +11,24 @@ namespace Cisapi\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Zend\View\Model\JsonModel;
 
 class IndexController extends AbstractActionController
 {
-    public function indexAction()
+    public function getMetaAction()
     {
-        return new ViewModel();
-    }
+		$result = new JsonModel(array(
+			'some_parameter' => 'some value',
+            'id'=>$this->params()->fromRoute('id',false),
+        ));
+        return $result;
+	}
+    public function getAction()
+    {
+		$result = new JsonModel(array(
+			'some_parameter' => 'some value',
+            'id'=>$this->params()->fromRoute('id',false),
+        ));
+        return $result;
+	}
 }

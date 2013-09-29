@@ -1,22 +1,42 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
+ * Central Image Service API
  *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @link      https://github.com/cis-service/cis
  */
 
 return array(
     'router' => array(
         'routes' => array(
-            'home' => array(
+            'get' => array(
+                'type' => 'Zend\Mvc\Router\Http\Segment',
+                'options' => array(
+                    'route'    => '/cis/api/get[/:id]',
+                    'defaults' => array(
+                        'controller' => 'Cisapi\Controller\Index',
+                        'action'     => 'get',
+						'id'		 => 0,
+                    ),
+                ),
+            ),
+            'getMeta' => array(
+                'type' => 'Zend\Mvc\Router\Http\Segment',
+                'options' => array(
+                    'route'    => '/cis/api/getmeta[/:id]',
+                    'defaults' => array(
+                        'controller' => 'Cisapi\Controller\Index',
+                        'action'     => 'getmeta',
+						'id'		 => 0,
+                    ),
+                ),
+            ),
+            'set' => array(
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => array(
-                    'route'    => '/',
+                    'route'    => '/api/set',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Index',
-                        'action'     => 'index',
+                        'controller' => 'Cisapi\Controller\Index',
+                        'action'     => 'set',
                     ),
                 ),
             ),
@@ -24,12 +44,12 @@ return array(
             // new controllers and actions without needing to create a new
             // module. Simply drop new controllers in, and you can access them
             // using the path /application/:controller/:action
-            'application' => array(
+            /*'cisapi' => array(
                 'type'    => 'Literal',
                 'options' => array(
-                    'route'    => '/application',
+                    'route'    => '/Cisapi',
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Application\Controller',
+                        '__NAMESPACE__' => 'Cisapi\Controller',
                         'controller'    => 'Index',
                         'action'        => 'index',
                     ),
@@ -49,7 +69,7 @@ return array(
                         ),
                     ),
                 ),
-            ),
+            ),*/
         ),
     ),
     'service_manager' => array(
@@ -73,7 +93,7 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Application\Controller\Index' => 'Application\Controller\IndexController'
+            'Cisapi\Controller\Index' => 'Cisapi\Controller\IndexController'
         ),
     ),
     'view_manager' => array(
@@ -84,12 +104,15 @@ return array(
         'exception_template'       => 'error/index',
         'template_map' => array(
             'layout/layout'           => __DIR__ . '/../view/layout/layout.phtml',
-            'application/index/index' => __DIR__ . '/../view/application/index/index.phtml',
+            'cisapi/index/index' => __DIR__ . '/../view/application/index/index.phtml',
             'error/404'               => __DIR__ . '/../view/error/404.phtml',
             'error/index'             => __DIR__ . '/../view/error/index.phtml',
         ),
         'template_path_stack' => array(
             __DIR__ . '/../view',
+        ),
+        'strategies' => array(
+            'ViewJsonStrategy',
         ),
     ),
     // Placeholder for console routes
