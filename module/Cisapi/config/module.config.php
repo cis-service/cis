@@ -15,7 +15,7 @@ return array(
                     'defaults' => array(
                         'controller' => 'Cisapi\Controller\Index',
                         'action'     => 'get',
-						'id'		 => 0,
+                        'id'		 => 0,
                     ),
                 ),
             ),
@@ -25,8 +25,8 @@ return array(
                     'route'    => '/cis/api/getmeta[/:id]',
                     'defaults' => array(
                         'controller' => 'Cisapi\Controller\Index',
-                        'action'     => 'getmeta',
-						'id'		 => 0,
+                        'action'  	 => 'getmeta',
+                        'id'		 => 0,
                     ),
                 ),
             ),
