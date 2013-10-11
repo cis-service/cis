@@ -13,7 +13,7 @@ return array(
             'home' => array(
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => array(
-                    'route'    => '/',
+                    'route'    => '/cis/web',
                     'defaults' => array(
                         'controller' => 'Cisweb\Controller\Index',
                         'action'     => 'index',
