@@ -24,4 +24,12 @@ return array(
                     => 'Zend\Db\Adapter\AdapterServiceFactory',
         ),
     ),
+    'cis' => array(
+        'core' => array(
+            'imgpath' => array(
+                'original' => 'data/origial/',
+                'resized'  => 'data/resized/',
+            ),
+        ),
+    ),
 );
