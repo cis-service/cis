@@ -4,8 +4,7 @@
  *
  * @link      https://github.com/cis-service/cis
  */
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
+
 use Ciscore\Model\Image;
 use Ciscore\Model\ImageTable;
 
@@ -19,18 +18,26 @@ return array(
             'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
             'Zend\Log\LoggerAbstractServiceFactory',
             ),
+        'initializers' => array(
+            function ($instance, $sm) {
+                if ($instance instanceof \Zend\Db\Adapter\AdapterAwareInterface) {
+                    $instance->setDbAdapter($sm->get('Zend\Db\Adapter\Adapter'));
+                }
+            }
+        ),
         'factories' => array(
-            'Ciscore\Model\ImageTable' =>  function($sm) {
-                    $tableGateway = $sm->get('ImageTableGateway');
-                    $table = new ImageTable($tableGateway);
+           'Ciscore\Model\ImageTable' =>  function($sm) {
+                    $table = new ImageTable();
+                    $table->setDbAdapter($sm->get('Zend\Db\Adapter\Adapter'));
+                    //$table->setServiceMangager($sm);
                     return $table;
                 },
-            'ImageTableGateway' => function ($sm) {
+            /*'ImageTableGateway' => function ($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $resultSetPrototype = new ResultSet();
                     $resultSetPrototype->setArrayObjectPrototype(new Image());
                     return new TableGateway('image', $dbAdapter, null, $resultSetPrototype);
-                },
+                },*/
         ),
         'shared' => array(
             'Ciscore\Model\ImageTable' => true,

@@ -2,26 +2,64 @@
 namespace Ciscore\Model;
 
 use Zend\Db\TableGateway\TableGateway;
+use Zend\Db\TableGateway\AbstractTableGateway;
+use Zend\Db\Adapter\Adapter;
+use Zend\Db\ResultSet\ResultSet;
+use Zend\Db\Adapter\AdapterAwareInterface;
+use Zend\ServiceManager\ServiceManagerAwareInterface;
+use Zend\ServiceManager\ServiceManager;
 
-class ImageTable
+class ImageTable extends AbstractTableGateway implements AdapterAwareInterface, ServiceManagerAwareInterface
 {
-    protected $tableGateway;
+    /*
+     * @var ServiceManager
+     */
+    protected $serviceManager=null;
+    
+    protected $table='image';
 
-    public function __construct(TableGateway $tableGateway)
+    public function __construct()//(Adapter $adapter)
     {
-        $this->tableGateway = $tableGateway;
+        //$this->adapter = $adapter;
+        //$this->initialize();
+    }
+    
+    public function initialize()
+    {
+        $this->resultSetPrototype = new ResultSet();
+        $img = new Image();
+        if($this->serviceManager)
+        {
+            $img->setServiceManager($this->serviceManager);
+        }
+        $this->resultSetPrototype->setArrayObjectPrototype($img);
+        if($this->adapter)
+        {
+            parent::initialize();
+        }
     }
 
+    public function setDbAdapter(Adapter $adapter)
+    {
+        $this->adapter = $adapter;
+        $this->initialize();
+    }
+    public function setServiceManager(ServiceManager $sm)
+    {
+        $this->serviceManager=$sm;
+        $this->initialize();
+    }
+    
     public function fetchAll()
     {
-        $resultSet = $this->tableGateway->select();
+        $resultSet = $this->select();
         return $resultSet;
     }
 
     public function getImage($id)
     {
         $id  = (int) $id;
-        $rowset = $this->tableGateway->select(array('id' => $id));
+        $rowset = $this->select(array('id' => $id));
         $row = $rowset->current();
         if (!$row) {
             //throw new \Exception("Could not find row $id");
@@ -41,10 +79,10 @@ class ImageTable
 
         $id = (int)$image->id;
         if ($id == 0) {
-            $this->tableGateway->insert($data);
+            $this->insert($data);
         } else {
-            if ($this->getAlbum($id)) {
-                $this->tableGateway->update($data, array('id' => $id));
+            if ($this->getImage($id)) {
+                $this->update($data, array('id' => $id));
             } else {
                 throw new \Exception('Form id does not exist');
             }
@@ -53,6 +91,6 @@ class ImageTable
 
     public function deleteImage($id)
     {
-        $this->tableGateway->delete(array('id' => $id));
+        $this->delete(array('id' => $id));
     }
 }
