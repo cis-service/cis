@@ -27,7 +27,7 @@ return array(
     'cis' => array(
         'core' => array(
             'imgpath' => array(
-                'original' => 'data/origial/',
+                'original' => 'data/original/',
                 'resized'  => 'data/resized/',
             ),
         ),
