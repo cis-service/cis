@@ -58,8 +58,18 @@ class ImageTable extends AbstractTableGateway implements AdapterAwareInterface, 
 
     public function getImage($id)
     {
+        if (!$this->isInitialized) {
+            $this->initialize();
+        }
+        
         $id  = (int) $id;
-        $rowset = $this->select(array('id' => $id));
+        
+
+        $select = $this->sql->select();
+        $select->where(array('id' => $id))->order('revision desc')->limit(1);
+
+        $rowset = $this->selectWith($select);
+        //$rowset = $this->select(array('id' => $id))->orderby('revision desc')->limit(1);
         $row = $rowset->current();
         if (!$row) {
             //throw new \Exception("Could not find row $id");
@@ -79,12 +89,33 @@ class ImageTable extends AbstractTableGateway implements AdapterAwareInterface, 
 
         $id = (int)$image->id;
         if ($id == 0) {
+            if(!$image->hasTmpFile())
+            {
+                throw new Exception("Saving new imageset without image, impossible");
+            }
+            $image->revision=0;
+            $data['type']=$image->getTmpImagetype();
             $this->insert($data);
+            $image->id = $this->lastInsertValue;
+            $image->saveTmpFile();
         } else {
-            if ($this->getImage($id)) {
-                $this->update($data, array('id' => $id));
+            $orig= $this->getImage($id);
+            if ($orig) {
+                $data['revision']=$orig->revision+1;
+                $image->revision=$data['revision'];
+                if($image->hasTmpFile())
+                {
+                    $image->saveTmpFile();
+                    $data['type']=$image->getTmpImagetype();
+                }
+                else
+                {
+                    link($orig->getImagePath(),$image->getImagePath());
+                }
+                $data['id']=$id;
+                $this->insert($data);
             } else {
-                throw new \Exception('Form id does not exist');
+                throw new \Exception('Imageid does not exist');
             }
         }
     }

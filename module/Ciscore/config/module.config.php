@@ -32,12 +32,11 @@ return array(
                     //$table->setServiceMangager($sm);
                     return $table;
                 },
-            /*'ImageTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Image());
-                    return new TableGateway('image', $dbAdapter, null, $resultSetPrototype);
-                },*/
+            'Ciscore\Model\Image' => function ($sm) {
+                    $img = new Image();
+                    $img->setServiceManager($sm);
+                    return $img;
+                },
         ),
         'shared' => array(
             'Ciscore\Model\ImageTable' => true,

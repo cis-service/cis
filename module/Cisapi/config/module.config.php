@@ -11,11 +11,12 @@ return array(
             'get' => array(
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => array(
-                    'route'    => '/cis/api/get[/:id]',
+                    'route'    => '/cis/api/get[/:id[/:dimension]]',
                     'defaults' => array(
                         'controller' => 'Cisapi\Controller\Index',
                         'action'     => 'get',
                         'id'		 => 0,
+                        'dimension'	 => 'x',
                     ),
                 ),
             ),
@@ -31,45 +32,16 @@ return array(
                 ),
             ),
             'set' => array(
-                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => array(
-                    'route'    => '/api/set',
+                    'route'    => '/cis/api/set[/:id]',
                     'defaults' => array(
                         'controller' => 'Cisapi\Controller\Index',
                         'action'     => 'set',
+                        'id'		 => 0,
                     ),
                 ),
             ),
-            // The following is a route to simplify getting started creating
-            // new controllers and actions without needing to create a new
-            // module. Simply drop new controllers in, and you can access them
-            // using the path /application/:controller/:action
-            /*'cisapi' => array(
-                'type'    => 'Literal',
-                'options' => array(
-                    'route'    => '/Cisapi',
-                    'defaults' => array(
-                        '__NAMESPACE__' => 'Cisapi\Controller',
-                        'controller'    => 'Index',
-                        'action'        => 'index',
-                    ),
-                ),
-                'may_terminate' => true,
-                'child_routes' => array(
-                    'default' => array(
-                        'type'    => 'Segment',
-                        'options' => array(
-                            'route'    => '/[:controller[/:action]]',
-                            'constraints' => array(
-                                'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
-                            ),
-                            'defaults' => array(
-                            ),
-                        ),
-                    ),
-                ),
-            ),*/
         ),
     ),
     'service_manager' => array(

@@ -17,37 +17,112 @@ use Zend\Db\TableGateway\TableGateway;
 
 class IndexController extends AbstractActionController
 {
-	protected $albumTable;
+	protected $imageTable;
     public function getMetaAction()
     {
-		$id = $this->getImageFromRoute();
-		$result = array();
-		if(!$id)
+		$img = $this->getImageFromRoute();
+		
+		if(!$img)
 		{
 			$result = array('success'=>false);
 		}
 		else
 		{
+			$result = array_merge($img->toArray(),array('success'=>true));
+		}
+        return new JsonModel($result);
+	}
+	/**
+	 * @return Ciscore\Model\Image
+	 **/
+	protected function getImageFromRoute()
+	{
+		$id = $this->getImageIdFromRoute();
+		$result = array();
+		if($id)
+		{
 			$img = $this->getImageTable()->getImage($id);
 			if($img)
 			{
-				$result = array_merge($img->toArray(),array('success'=>true));
+				return $img;
 			}
 			else
 			{
-				$result = array('success'=>false);
+				return false;
+			}
+		}
+		return false;
+	}
+	
+    public function getAction()
+    {
+		$img = $this->getImageFromRoute();
+		if(!$img)
+		{
+			//Return empty img
+			return;
+		}
+		$dimension = $this->params()->fromRoute('dimension',0);
+		
+		$response = $this->getResponse();
+		$imageContent = file_get_contents($img->getImagePath());
+
+		$response->setContent($imageContent);
+		$response
+			->getHeaders()
+			->addHeaderLine('Content-Transfer-Encoding', 'binary')
+			->addHeaderLine('Content-Type', $img->type)
+			->addHeaderLine('Content-Length', mb_strlen($imageContent));
+
+		return $response;
+	}
+	
+	public function setAction()
+	{
+		$request = $this->getRequest();
+		$result = array('success'=>false);
+		 if ($request->isPost()) {
+			// Make certain to merge the files info!
+			/*$post = array_merge_recursive(
+				$request->getPost()->toArray(),
+				$request->getFiles()->toArray()
+			);*/
+			$img = $this->getServiceLocator()->get('Ciscore\Model\Image');
+			$files = $request->getFiles();
+			if(count($files)!=1)
+			{
+				$result['message'] = "Wrong filecount";
+				return new JsonModel($result);
+			}
+			$file = $files['file_contents'];
+			//error_log(var_export($file,true));
+			if($file['size']<100)
+			{
+				$result['message'] = "File uploaderror";
+				return new JsonModel($result);
+			}
+			$id = intval($this->params()->fromRoute('id',0));
+			if($id)
+			{
+				$img->id=$id;
+			}
+			$img->setTmpFilename($file['tmp_name']);
+			$img->filename = $file['name'];
+			$img->credit = $request->getPost('credit','');
+			$img->title = $request->getPost('title','');
+			try{
+				$this->getImageTable()->saveImage($img);
+				$result['success']=true;
+				$result['id']=$img->id;
+			}
+			catch(Exception $e)
+			{
+				$result['message']= $e->getMessage();
 			}
 		}
         return new JsonModel($result);
 	}
-    public function getAction()
-    {
-		$result = new JsonModel(array(
-			'some_parameter' => 'some value',
-            'id'=>$this->params()->fromRoute('id',false),
-        ));
-        return $result;
-	}
+	
 	public function getImageTable()
     {
         if (!$this->imageTable) {
@@ -57,7 +132,7 @@ class IndexController extends AbstractActionController
         return $this->imageTable;
     }
 	
-	protected function getImageFromRoute()
+	protected function getImageIdFromRoute()
 	{
 		//Get ID From Route
 		$id = $this->params()->fromRoute('id',0);
