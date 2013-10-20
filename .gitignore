@@ -13,3 +13,5 @@ nbproject
 .settings
 composer.lock
 vendor/bin
+data/original/*
+data/resized/*
