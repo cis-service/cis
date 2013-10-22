@@ -65,7 +65,7 @@ class IndexController extends AbstractActionController
 		$dimension = $this->params()->fromRoute('dimension',0);
 		
 		$response = $this->getResponse();
-		$imageContent = file_get_contents($img->getImagePath());
+		$imageContent = file_get_contents($img->getImagePath($dimension));
 
 		$response->setContent($imageContent);
 		$response

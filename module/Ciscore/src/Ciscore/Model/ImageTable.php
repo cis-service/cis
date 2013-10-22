@@ -97,15 +97,21 @@ class ImageTable extends AbstractTableGateway implements AdapterAwareInterface, 
             $data['type']=$image->getTmpImagetype();
             $this->insert($data);
             $image->id = $this->lastInsertValue;
-            $image->saveTmpFile();
+            if($saveResult!==true)
+            {
+                throw new \Exception('Image could not be saved('.$saveResult.')');
+            }
         } else {
             $orig= $this->getImage($id);
             if ($orig) {
-                $data['revision']=$orig->revision+1;
-                $image->revision=$data['revision'];
+                $image->revision=$data['revision']=$orig->revision+1;
                 if($image->hasTmpFile())
                 {
-                    $image->saveTmpFile();
+                    $saveResult=$image->saveTmpFile();
+                    if($saveResult!==true)
+                    {
+                        throw new \Exception('Image could not be saved('.$saveResult.')');
+                    }
                     $data['type']=$image->getTmpImagetype();
                 }
                 else

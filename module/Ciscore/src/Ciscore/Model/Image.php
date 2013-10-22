@@ -56,7 +56,9 @@ class Image implements ServiceManagerAwareInterface
     {
         return $this->tmpFilename !=null;
     }
-    
+    /**
+     * Saves the Temporary File to Imagefilepath
+     */
     public function saveTmpFile()
     {
         $path = $this->getImagePath();
@@ -64,11 +66,24 @@ class Image implements ServiceManagerAwareInterface
         {
             if(!mkdir(dirname($path),0775,true))
             {
-                throw new \Exception("Could not create path");
+                return "Could not create path";
             }
         }
-        move_uploaded_file($this->getTmpFilename(),$path);
+        if(file_exists($path))
+        {
+            return "File already exists";
+        }
+        if(!move_uploaded_file($this->getTmpFilename(),$path))
+        {
+            return "Could not move File";
+        }
         $this->type = $this->getTmpImagetype();
+        if(!$this->type || substr($this->type,0,5)!='image')
+        {
+            unlink($path);
+            return "wrong filetype";
+        }
+        return true;
     }
     public function getTmpImagetype()
     {
@@ -114,13 +129,48 @@ class Image implements ServiceManagerAwareInterface
             $dimX = intval($dimension[0]);
             $dimY = intval($dimension[1]);
         }
-        $path = $this->getImageBasepath(true)."/".$this->id;
-		if($dimX != 0 || $dimY!=0) //Original Image needed
+        $path = $this->getImageBasepath(($dimX == 0 && $dimY==0));
+		if($dimX != 0 || $dimY!=0) //Resized Image needed
 		{
-			
             $path .= "_".$dimX."_".$dimY;
+            $this->createResized($this->getImageBasepath(true),$path,$dimX,$dimY);
         }
         return $path;
+    }
+    
+    private function createResized($origPath,$path,$dimX,$dimY)
+    {
+        if(file_exists($path)) //Image already created
+        {
+            if(filesize($path)>0)
+            {
+                return true;
+            }
+            elseif(filectime($path)>time()-20)
+            {
+                sleep(2);
+                return $this->createResized($origPath,$path,$dimX,$dimY);
+            }
+        }
+        if(!file_exists(dirname($path)))
+        {
+            if(!mkdir(dirname($path),0775,true))
+            {
+                throw new \Exception( "Could not create path");
+            }
+        }
+        touch($path);
+        $orig = new \Imagick($origPath);
+            
+        if($dimX==0|| $dimY==0)//Need to calculate 2nd size
+        {
+            $imageprops = $orig->getImageGeometry();
+            $ratio=$imageprops['width']/$imageprops['height'];
+            if($dimX==0) $dimX=$ratio*$dimY;
+            if($dimY==0) $dimY=$dimX/$ratio;
+        }
+        $orig->resizeImage($dimX,$dimY, \Imagick::FILTER_LANCZOS, 0.9, true);
+        $orig->writeImage($path);
     }
     
     public function setServiceManager(ServiceManager $sm)
@@ -133,10 +183,10 @@ class Image implements ServiceManagerAwareInterface
         if(!$this->serviceManager) throw new Exception("Service Manager not defined");
         $options = $this->serviceManager->get('config');
         if(!$this->id) throw new \Exception("Could not generate Imagepath");
-        $md5 = md5($this->id);
+        $md5 = md5($this->id.$this->revision);
         $base = $options['cis']['core']['imgpath'][$original?'original':'resized'].substr(chunk_split($md5, 2, '/'), 0, -1); 
         //echo $base;exit();
-        return $base;
+        return $base."/".$this->id.'_'.$this->revision;
     }
     
 }
