@@ -109,6 +109,7 @@ class Image implements ServiceManagerAwareInterface
     {
         return array(
             'id' => $this->id,
+            'revision' => $this->revision,
             'title' => $this->title,
             'type' => $this->type,
             'filename' => $this->filename,
