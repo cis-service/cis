@@ -72,6 +72,7 @@ class IndexController extends AbstractActionController
 			->getHeaders()
 			->addHeaderLine('Content-Transfer-Encoding', 'binary')
 			->addHeaderLine('Content-Type', $img->type)
+			->addHeaderLine('Content-Info', json_encode($img->toArray()))
 			->addHeaderLine('Content-Length', mb_strlen($imageContent));
 
 		return $response;
