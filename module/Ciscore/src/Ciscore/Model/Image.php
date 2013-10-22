@@ -146,9 +146,9 @@ class Image implements ServiceManagerAwareInterface
             {
                 return true;
             }
-            elseif(filectime($path)>time()-20)
+            elseif(filectime($path)>time()-20) //Take care to the number of resize processes
             {
-                sleep(2);
+                sleep(1);
                 return $this->createResized($origPath,$path,$dimX,$dimY);
             }
         }
