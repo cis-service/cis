@@ -91,9 +91,20 @@ class Client
         return $return;
     }
     
-    public function get($id)
+    public function get($id,$dimension="x")
     {
         $id = intval($id);
+        $dim = explode('x',$dimension);
+        if(count($dim)!=2)
+        {
+            throw new \Exception("Incorrect dimension");
+        }
+        $dim[0] = intval($dim[0]);
+        $dim[1] = intval($dim[1]);
+        $dim = implode('x',$dim);
+        $c = $this->getCurl("/cis/api/set"."/$id"."/$dim");
+        $return = curl_exec($c);
+        return $return;
     }
     
     protected function getCurl($url,$data=array(), $post = false)
