@@ -8,36 +8,47 @@
 return array(
     'router' => array(
         'routes' => array(
-            'get' => array(
+            'cis_api_get' => array(
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => array(
                     'route'    => '/cis/api/get[/:id[/:dimension]]',
                     'defaults' => array(
-                        'controller' => 'Cisapi\Controller\Index',
+                        'controller' => 'Cisapi\Controller\Api',
                         'action'     => 'get',
                         'id'		 => 0,
                         'dimension'	 => 'x',
                     ),
                 ),
             ),
-            'getMeta' => array(
+            'cis_api_getMeta' => array(
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => array(
                     'route'    => '/cis/api/getmeta[/:id]',
                     'defaults' => array(
-                        'controller' => 'Cisapi\Controller\Index',
+                        'controller' => 'Cisapi\Controller\Api',
                         'action'  	 => 'getmeta',
                         'id'		 => 0,
                     ),
                 ),
             ),
-            'set' => array(
+            'cis_api_set' => array(
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => array(
                     'route'    => '/cis/api/set[/:id]',
                     'defaults' => array(
-                        'controller' => 'Cisapi\Controller\Index',
+                        'controller' => 'Cisapi\Controller\Api',
                         'action'     => 'set',
+                        'id'		 => 0,
+                    ),
+                ),
+            ),
+            'cis_api_auth' => array(
+                'type' => 'Zend\Mvc\Router\Http\Segment',
+                'options' => array(
+                    'route'    => '/cis/api/auth',
+                    'defaults' => array(
+                        'controller' => 'Cisapi\Controller\Api',
+                        'action'     => 'auth',
                         'id'		 => 0,
                     ),
                 ),
@@ -65,7 +76,7 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Cisapi\Controller\Index' => 'Cisapi\Controller\IndexController'
+            'Cisapi\Controller\Api' => 'Cisapi\Controller\ApiController'
         ),
     ),
     'view_manager' => array(

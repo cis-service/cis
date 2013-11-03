@@ -15,7 +15,9 @@ use Ciscore\Model\ImageTable;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\TableGateway\TableGateway;
 
-class IndexController extends AbstractActionController
+
+
+class ApiController extends AbstractActionController
 {
 	protected $imageTable;
     public function getMetaAction()
@@ -56,6 +58,19 @@ class IndexController extends AbstractActionController
 	
     public function getAction()
     {
+        $authService = $this->getServiceLocator()->get('Ciscore\Auth\Service');
+		$authService->getAdapter()
+			->setIdentity('test')
+			->setCredential('test');
+		
+		$result = $authService->authenticate();
+		
+		echo $result->getIdentity() . "\n\n";
+		//print_r($authAdapter->getResultRowObject());
+		echo "<br><br>";
+		var_dump($result->isValid());
+		exit();
+		
 		$img = $this->getImageFromRoute();
 		if(!$img)
 		{
@@ -83,11 +98,6 @@ class IndexController extends AbstractActionController
 		$request = $this->getRequest();
 		$result = array('success'=>false);
 		 if ($request->isPost()) {
-			// Make certain to merge the files info!
-			/*$post = array_merge_recursive(
-				$request->getPost()->toArray(),
-				$request->getFiles()->toArray()
-			);*/
 			$img = $this->getServiceLocator()->get('Ciscore\Model\Image');
 			$files = $request->getFiles();
 			if(count($files)!=1)
@@ -143,4 +153,29 @@ class IndexController extends AbstractActionController
 		
 		return $id;
 	}
+    
+    public function authAction()
+    {
+        $authService = $this->getServiceLocator()->get('Ciscore\Auth\Service');
+        $request = $this->getRequest();
+        if($request->isPost())
+        {
+            $authService->getAdapter()
+                ->setIdentity($request->getPost('user',''))
+                ->setCredential($request->getPost('password',''));
+            
+            $result = $authService->authenticate();
+            if($result->isValid())
+            {
+            }
+            else
+            {
+                $arrayResult = array('error'=>true,'error_message'=>'Invalid Login Data');
+            }
+        }
+        else
+        {
+        }
+        return new JsonModel($arrayResult);
+    }
 }

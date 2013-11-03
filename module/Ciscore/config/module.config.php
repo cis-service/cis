@@ -7,6 +7,8 @@
 
 use Ciscore\Model\Image;
 use Ciscore\Model\ImageTable;
+use Zend\Authentication\Adapter\DbTable as AuthAdapter;
+use Zend\Authentication\AuthenticationService;
 
 return array(
     'router' => array(
@@ -37,6 +39,22 @@ return array(
                     $img->setServiceManager($sm);
                     return $img;
                 },
+            'Ciscore\Auth\Storage' => function ($sm) {
+                return new \Ciscore\Auth\Storage();
+            },
+            'Ciscore\Auth\Service' => function ($sm) {
+                $authAdapter = new AuthAdapter($sm->get('Zend\Db\Adapter\Adapter'));
+                $authAdapter
+                    ->setTableName('user')
+                    ->setIdentityColumn('username')
+                    ->setCredentialColumn('password')
+                    ->setCredentialTreatment("SHA2(CONCAT('cisCoreSalt',?,salt),512) and status='active'");
+                    
+                $authService = new AuthenticationService();
+                $authService->setAdapter($authAdapter);
+                $authService->setStorage($sm->get('Ciscore\Auth\Storage'));
+                return $authService;
+            }
         ),
         'shared' => array(
             'Ciscore\Model\ImageTable' => true,
