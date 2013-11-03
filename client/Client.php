@@ -129,5 +129,20 @@ class Client
         curl_setopt_array($c, $options);
         return $c;
     }
-
+    public function setUser($user)
+    {
+        $this->user=$user;
+        return $this;
+    }
+    public function setPassword($pw)
+    {
+        $this->password=$pw;
+        return $this;
+    }
+    public function auth()
+    {
+        $c = $this->getCurl("/cis/api/auth",array('user'=>$this->user,'password'=>$this->password),true);
+        $return = curl_exec($c);
+        return json_decode($return);
+    }
 }
